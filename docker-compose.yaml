@@ -1,0 +1,41 @@
+#https://docs.docker.com/compose/compose-file/compose-file-v3/
+version: "3.8"
+services:
+  database:
+    image: mysql:5.7
+    configs:
+      - source: table
+        target: /docker-entrypoint-initdb.d/init.sql
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - clarus-net
+#https://hub.docker.com/_/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: P123456p
+      MYSQL_DATABASE: phonebook_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: Clarusway_1
+  app-server:
+    image: $ECR_REPO:latest
+    ports:
+      - "80:80"
+    networks:
+      - clarus-net
+    deploy:
+      mode: global
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+
+
+networks:
+  clarus-net:
+
+volumes:
+  db-data:
+  
+configs:
+  table:
+    file: ./init.sql
